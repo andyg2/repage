@@ -34,10 +34,13 @@ $p['image_padding'] = 20; // add 20 pixels additional border to crop
 // ======CROPPING_THRESHOLD======
 $p['cropping_threshold'] = 'auto'; // or 'auto'
 
-
 batch_repage($p);
 
 function batch_repage($p) {
+
+  // Uncomment to show parapaters
+  // prep($p, 'args for batch_repage($p)', '$p');
+
 
   $p['autoname'] = isset($p['autoname']) ? boolval($p['autoname']) : false; // adds dimentions to file and if exists increments filename integer
   $p['destination_width'] = isset($p['destination_width']) ? intval($p['destination_width']) : 800;
@@ -78,7 +81,6 @@ function batch_repage($p) {
 
       $pathinfo = pathinfo($file);
       $p['output_image'] = $dest . $pathinfo['basename'];
-      pre($p);
       repage_image($p);
     }
   }
@@ -86,15 +88,18 @@ function batch_repage($p) {
 
 function repage_image($p) {
 
+  // Uncomment to show parapaters
+  // prep($p, 'args for repage_image($p)', '$p');
+
   $background = ['r' => 255, 'g' => 255, 'b' => 255];
 
   if (isset($p['background_color'])) {
     if (is_integer($p['background_color'])) {
       $background = corner_color($p['input_image'], $p['background_color']);
-    } elseif (strpos($p['background_color'], '#') === 0) {
-      $background = hex2RGB($p['background_color']);
     } elseif (isset($p['background_color']['r']) && isset($p['background_color']['g']) && isset($p['background_color']['b'])) {
       $background = $p['background_color'];
+    } elseif (strpos($p['background_color'], '#') === 0) {
+      $background = hex2RGB($p['background_color']);
     }
   }
 
@@ -267,19 +272,19 @@ function hex2RGB($hexStr, $default = []) {
 }
 
 
-
-function pre($a, $h = false) {
-  echo $h ? '<h3 style="margin-bottom: 0px;">' . $h . '</h3><pre style="margin-top: 0px;">' : '<pre style="margin-top: 0px;">';
-  print_r($a);
-  echo '</pre>';
-}
-
-function prex($a, $h = false, $dbg = false) {
-  pre($a, $h);
-  if ($dbg) {
-    echo '<pre>';
-    print_r(debug_backtrace());
-    echo '</pre>';
+function prep($a, $h = null, $n = null) {
+  if (is_string($h)) {
+    echo '<h3 style="margin-bottom: 0px;">' . $h . '</h3>' . "\n";
   }
-  exit;
+  echo '<code style="margin-top: 0px;">';
+  foreach ($a as $k => $v) {
+    if (is_bool($v)) {
+      echo $n . "['" . $k . "'] = " . ($v ? 'true' : 'false') . ";<br>\n";
+    } elseif (is_int($v)) {
+      echo $n . "['" . $k . "'] = " . $v . ";<br>\n";
+    } elseif (is_string($v)) {
+      echo $n . "['" . $k . "'] = '" . $v . "';<br>\n";
+    }
+  }
+  echo '</code>';
 }
